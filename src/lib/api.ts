@@ -4,7 +4,7 @@
  */
 
 function getApiUrl(): string {
-  const env = (import.meta.env.VITE_API_URL ?? "").trim();
+  const env = (import.meta.env.VITE_API_URL ?? "").trim().replace(/\/+$/, "");
   if (typeof window !== "undefined") {
     if (env) return env;
     return window.location.origin;
