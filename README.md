@@ -62,6 +62,23 @@ This repo is configured to deploy on **Vercel** as:
 - **Frontend**: Vite SPA (build output: `dist/`)
 - **Backend**: Serverless function under `/api/*` (wraps the Express app)
 
+So the backend **is** hosted on Vercel—same project, same domain. Requests to `https://your-app.vercel.app/api/*` run the Express app inside a serverless function. If login or API calls fail (e.g. 405, no data), common causes are: env vars (`CORS_ORIGIN`, Supabase, `JWT_SECRET`), or serverless/Express quirks (request format, cold starts).
+
+### Option B: Host the backend separately
+
+If the serverless setup is unreliable, you can run the backend as a **separate** Node server and keep only the frontend on Vercel:
+
+1. **Deploy the backend** to a Node host (e.g. [Railway](https://railway.app), [Render](https://render.com), [Fly.io](https://fly.io), or a second Vercel project that only runs the backend).
+2. **Backend** (e.g. `backend/` only):
+   - Build: `npm run build` (in `backend/`)
+   - Start: `npm run start`
+   - Set env: `CORS_ORIGIN=https://asramjin-gazar.vercel.app`, plus Supabase and `JWT_SECRET`.
+3. **Frontend** (Vercel):
+   - Set **`VITE_API_URL`** to your backend URL (e.g. `https://your-backend.railway.app` or `https://your-api.vercel.app`).
+   - Leave the repo’s `api/` folder unused (or remove it) so Vercel only serves the SPA.
+
+Then the frontend will call the separate backend URL; CORS must allow your Vercel origin.
+
 ### Vercel settings
 
 - **Build Command**: `npm run build`

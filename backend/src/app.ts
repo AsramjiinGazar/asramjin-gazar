@@ -30,6 +30,12 @@ app.use(
 app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(express.json());
 
+// Prevent caching of API responses so clients always get fresh data (avoids 304 with stale/empty body).
+app.use('/api', (_req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+  next();
+});
+
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
