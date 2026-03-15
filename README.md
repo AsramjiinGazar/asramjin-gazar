@@ -79,11 +79,18 @@ If the serverless setup is unreliable, you can run the backend as a **separate**
 
 Then the frontend will call the separate backend URL; CORS must allow your Vercel origin.
 
+### Check that the backend is running on Vercel
+
+After deploy, open **`https://your-app.vercel.app/api/health`** in the browser.
+
+- If you see `{"status":"ok","source":"vercel-api",...}` → API routes work. If `/api/leaderboard` etc. still fail, the Express app may not be loading (check deploy logs for errors).
+- If you see your SPA (HTML) or 404 → `/api/*` isn’t hitting serverless functions. **Fix:** In `vercel.json` we set `"framework": null` so Vercel uses “Other” and deploys both the static `dist/` and the `api/` serverless functions. If you override Framework in the Vercel dashboard, set it to **Other** (not Vite) so API routes are deployed.
+
 ### Vercel settings
 
 - **Build Command**: `npm run build`
 - **Output Directory**: `dist`
-- **Note**: This project installs backend dependencies via `postinstall` automatically.
+- **Note**: This project installs backend dependencies via `postinstall` automatically. `vercel.json` includes `backend/dist` in the API function so the Express app is available at runtime.
 
 ### Vercel Environment Variables (Backend)
 
