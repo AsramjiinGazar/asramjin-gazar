@@ -3,11 +3,11 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    { "source": "/api/:path*", "destination": "/api/:path*" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ],
   "functions": {
-    "api/[...path].ts": {
+    "api/[[...path]].ts": {
       "includeFiles": "backend/dist/**"
     }
   }
