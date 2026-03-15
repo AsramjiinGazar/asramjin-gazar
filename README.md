@@ -80,7 +80,7 @@ Set these in Vercel Project Settings → Environment Variables:
 ### Vercel Environment Variables (Frontend)
 
 - `VITE_API_URL`:
-  - If you deploy backend in the same Vercel project (recommended here): set it to empty, or set it to your site origin.
+  - **Same Vercel project (recommended):** Leave unset. The app will use the same origin as the site (e.g. `https://asramjin-gazar.vercel.app`), so it never calls localhost in production.
   - If backend is on a separate domain: set it to that backend URL.
 
 ## Public browsing

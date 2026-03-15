@@ -1,11 +1,22 @@
 /**
  * API client for backend. Uses VITE_API_URL and localStorage token for auth.
  * On 401, clears token and redirects to /login.
+ *
+ * Production (same-origin): Leave VITE_API_URL unset in Vercel so the app uses
+ * window.location.origin and never calls localhost. Set CORS_ORIGIN to your frontend origin.
  */
 
-const API_URL =
-  (import.meta.env.VITE_API_URL ?? "").trim() ||
-  (typeof window !== "undefined" ? window.location.origin : "http://localhost:3001");
+function getApiUrl(): string {
+  if (typeof window !== "undefined") {
+    const origin = window.location.origin;
+    if (!origin.startsWith("http://localhost") && !origin.startsWith("http://127.0.0.1"))
+      return origin;
+    const env = (import.meta.env.VITE_API_URL ?? "").trim();
+    return env || origin;
+  }
+  return (import.meta.env.VITE_API_URL ?? "").trim() || "http://localhost:3001";
+}
+
 const TOKEN_KEY = 'token';
 
 function getToken(): string | null {
@@ -24,7 +35,7 @@ async function request<T>(
   options: RequestInit & { params?: Record<string, string | number | undefined> } = {}
 ): Promise<T> {
   const { params, ...rest } = options;
-  const url = new URL(path.startsWith('http') ? path : `${API_URL}${path}`);
+  const url = new URL(path.startsWith('http') ? path : `${getApiUrl()}${path}`);
   if (params) {
     Object.entries(params).forEach(([k, v]) => {
       if (v !== undefined && v !== '') url.searchParams.set(k, String(v));
@@ -55,7 +66,7 @@ async function request<T>(
     throw new Error(err.error ?? err.message ?? 'Request failed');
   }
   if (res.headers.get('content-type')?.includes('application/json')) return res.json() as Promise<T>;
-  return undefined as T;
+  throw new Error('Server returned non-JSON response');
 }
 
 // Types (match backend responses; snake_case from DB)
@@ -143,12 +154,12 @@ export const leaderboard = {
     request<{ data: Array<{ rank: number; userId: string; fullName: string; avatarUrl: string | null; totalXP: number; level: number }>; total: number }>(
       '/api/leaderboard/all-time',
       { params: params as Record<string, string | number | undefined> }
-    ),
+    ).then((r) => r ?? { data: [], total: 0 }),
   monthly: (params?: { page?: number; limit?: number }) =>
     request<{ data: Array<{ rank: number; userId: string; fullName: string; avatarUrl: string | null; totalXP: number; level: number }>; total: number }>(
       '/api/leaderboard/monthly',
       { params: params as Record<string, string | number | undefined> }
-    ),
+    ).then((r) => r ?? { data: [], total: 0 }),
 };
 
 export const announcements = {
@@ -157,8 +168,8 @@ export const announcements = {
 };
 
 export const quests = {
-  get: () => request<unknown[]>('/api/quests'),
-  getMyProgress: () => request<unknown[]>('/api/quests/me'),
+  get: () => request<unknown[]>('/api/quests').then((r) => r ?? []),
+  getMyProgress: () => request<unknown[]>('/api/quests/me').then((r) => r ?? []),
 };
 
 /** Admin panel (no auth required): create quests and announcements */
