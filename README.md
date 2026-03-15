@@ -66,6 +66,7 @@ This repo is configured to deploy on **Vercel** as:
 
 - **Build Command**: `npm run build`
 - **Output Directory**: `dist`
+- **Note**: This project installs backend dependencies via `postinstall` automatically.
 
 ### Vercel Environment Variables (Backend)
 
