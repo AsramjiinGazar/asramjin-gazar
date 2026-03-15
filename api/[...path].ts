@@ -1,18 +1,39 @@
 import type { IncomingMessage, ServerResponse } from "http";
+import path from "path";
+import { pathToFileURL } from "url";
 
-// Vercel will run `npm run build` which also builds `backend/` (see package.json).
-// Import the compiled backend express app so NodeNext/ESM pathing works reliably.
-import app from "../backend/dist/app.js";
-
-// Ensure Node runtime and all HTTP methods are accepted (avoids 405 for POST/PUT/DELETE).
 export const config = { runtime: "nodejs" };
 
-export default function handler(req: IncomingMessage & { url?: string }, res: ServerResponse) {
-  // Vercel may pass path without /api prefix for catch-all; Express expects full path.
+let appPromise: Promise<any> | null = null;
+
+function getApp() {
+  if (!appPromise) {
+    const appPath = path.join(process.cwd(), "backend", "dist", "app.js");
+    appPromise = import(pathToFileURL(appPath).href).then((m) => m.default);
+  }
+  return appPromise;
+}
+
+export default async function handler(
+  req: IncomingMessage & { url?: string },
+  res: ServerResponse
+) {
   const raw = req.url ?? "";
   if (raw && !raw.startsWith("/api")) {
     (req as { url: string }).url = "/api" + (raw.startsWith("/") ? raw : "/" + raw);
   }
-  return app(req as any, res as any);
+  try {
+    const app = await getApp();
+    return app(req as any, res as any);
+  } catch (err) {
+    res.statusCode = 503;
+    res.setHeader("Content-Type", "application/json");
+    res.end(
+      JSON.stringify({
+        error: "Backend failed to load",
+        message: err instanceof Error ? err.message : String(err),
+      })
+    );
+  }
 }
 
