@@ -1,20 +1,15 @@
 /**
- * API client for backend. Uses VITE_API_URL and localStorage token for auth.
- * On 401, clears token and redirects to /login.
- *
- * Production (same-origin): Leave VITE_API_URL unset in Vercel so the app uses
- * window.location.origin and never calls localhost. Set CORS_ORIGIN to your frontend origin.
+ * API client for backend. Uses VITE_API_URL when set (production with separate backend);
+ * otherwise same origin or localhost. On 401, clears token and redirects to /login.
  */
 
 function getApiUrl(): string {
+  const env = (import.meta.env.VITE_API_URL ?? "").trim();
   if (typeof window !== "undefined") {
-    const origin = window.location.origin;
-    if (!origin.startsWith("http://localhost") && !origin.startsWith("http://127.0.0.1"))
-      return origin;
-    const env = (import.meta.env.VITE_API_URL ?? "").trim();
-    return env || origin;
+    if (env) return env;
+    return window.location.origin;
   }
-  return (import.meta.env.VITE_API_URL ?? "").trim() || "http://localhost:3001";
+  return env || "http://localhost:3001";
 }
 
 const TOKEN_KEY = 'token';
