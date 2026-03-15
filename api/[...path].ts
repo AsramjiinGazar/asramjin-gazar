@@ -5,7 +5,7 @@ import type { IncomingMessage, ServerResponse } from "http";
 import app from "../backend/dist/app.js";
 
 // Ensure Node runtime and all HTTP methods are accepted (avoids 405 for POST/PUT/DELETE).
-export const config = { runtime: "nodejs" as const };
+export const config = { runtime: "nodejs" };
 
 export default function handler(req: IncomingMessage & { url?: string }, res: ServerResponse) {
   // Vercel may pass path without /api prefix for catch-all; Express expects full path.
