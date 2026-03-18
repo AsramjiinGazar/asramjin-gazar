@@ -89,7 +89,10 @@ const Students = () => {
             <h1 className="text-lg font-bold">Асрамжийнхан</h1>
             <div className="flex items-center gap-1.5 mt-1 text-sm opacity-90">
               <Users size={14} />
-              <span>{listData?.total ?? 0}үүлээ</span>
+              <span>
+                {students.filter((s) => (s as unknown as { role?: string }).role !== "teacher").length}
+                үүлээ
+              </span>
             </div>
           </div>
         </div>
@@ -108,7 +111,7 @@ const Students = () => {
             className={[
               "rounded-xl p-4 shadow-sm text-center active:scale-[0.97] transition-transform",
               isTeacher
-                ? "bg-card ring-1 ring-[hsl(var(--gold))]/35 shadow-[0_10px_30px_-20px_rgba(255,200,80,0.55)]"
+                ? "bg-card col-span-2 ring-1 ring-[hsl(var(--gold))]/35 shadow-[0_10px_30px_-20px_rgba(255,200,80,0.55)]"
                 : "bg-card",
             ].join(" ")}
           >
