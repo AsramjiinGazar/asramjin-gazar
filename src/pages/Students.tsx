@@ -95,9 +95,10 @@ const Students = () => {
         </div>
       </div>
 
-      <h2 className="text-base font-bold mb-3">Сурагчид</h2>
-      <div className="grid grid-cols-2 gap-3">
-        {students.map((s) => {
+      {(() => {
+        const teachers = students.filter((s) => (s as unknown as { role?: string }).role === "teacher");
+        const onlyStudents = students.filter((s) => (s as unknown as { role?: string }).role !== "teacher");
+        const renderCard = (s: (typeof students)[number]) => {
           const badges = (s as unknown as { badges?: Array<{ id: string; name: string; icon: string | null }> }).badges ?? [];
           return (
           <button
@@ -126,8 +127,27 @@ const Students = () => {
               Lvl {s.level ?? 0}
             </span>
           </button>
-        )})}
-      </div>
+        );
+        };
+
+        return (
+          <>
+            {teachers.length > 0 ? (
+              <>
+                <h2 className="text-base font-bold mb-3">Багш нар</h2>
+                <div className="grid grid-cols-2 gap-3 mb-6">
+                  {teachers.map(renderCard)}
+                </div>
+              </>
+            ) : null}
+
+            <h2 className="text-base font-bold mb-3">Сурагчид</h2>
+            <div className="grid grid-cols-2 gap-3">
+              {onlyStudents.map(renderCard)}
+            </div>
+          </>
+        );
+      })()}
     </div>
   );
 };

@@ -79,6 +79,7 @@ export interface ApiProfile {
   bio: string | null;
   favorite_subject: string | null;
   success: string | null;
+  role?: 'student' | 'teacher' | 'admin' | string;
   level: number;
   total_xp: number;
   [key: string]: unknown;

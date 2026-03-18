@@ -71,6 +71,13 @@ export async function getStudents(query: StudentsQueryInput) {
 
   const profiles = data ?? [];
   const userIds = profiles.map((p) => (p as { user_id?: string }).user_id).filter(Boolean) as string[];
+
+  const { data: users, error: uError } = userIds.length
+    ? await supabase.from('users').select('id, role').in('id', userIds)
+    : { data: [], error: null };
+  if (uError) throw new AppError(500, 'Failed to fetch user roles');
+  const roleByUser = new Map<string, string>((users ?? []).map((u) => [(u as { id: string }).id, (u as { role?: string }).role ?? 'student']));
+
   const { data: userBadges, error: ubError } = await supabase
     .from('user_badges')
     .select('user_id, badge_id')
@@ -98,6 +105,7 @@ export async function getStudents(query: StudentsQueryInput) {
   return {
     data: profiles.map((p) => ({
       ...p,
+      role: roleByUser.get((p as { user_id: string }).user_id) ?? 'student',
       badges: badgesByUser.get((p as { user_id: string }).user_id) ?? [],
     })),
     total: count ?? 0,
@@ -121,6 +129,9 @@ export async function getStudentById(id: string) {
   const userId = (data as { user_id?: string }).user_id;
   if (!userId) return data;
 
+  const { data: userRow, error: userErr } = await supabase.from('users').select('id, role').eq('id', userId).single();
+  if (userErr) throw new AppError(500, 'Failed to fetch user role');
+
   const { data: userBadges, error: ubError } = await supabase
     .from('user_badges')
     .select('badge_id')
@@ -135,6 +146,7 @@ export async function getStudentById(id: string) {
 
   return {
     ...data,
+    role: (userRow as { role?: string } | null)?.role ?? 'student',
     badges: (badges ?? []).map((b) => ({ id: b.id, name: b.name, icon: b.icon ?? null })),
   };
 }
