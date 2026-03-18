@@ -88,6 +88,39 @@ export async function login(input: LoginInput) {
   };
 }
 
+export async function loginByName(input: { fullName: string }) {
+  const fullName = input.fullName.trim();
+  const { data: profile, error: pError } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('full_name', fullName)
+    .single();
+
+  if (pError || !profile) {
+    throw new AppError(401, 'Нэр олдсонгүй');
+  }
+
+  const userId = (profile as { user_id?: string }).user_id;
+  if (!userId) throw new AppError(401, 'Нэр олдсонгүй');
+
+  const { data: user, error: uError } = await supabase
+    .from('users')
+    .select('id, email, role')
+    .eq('id', userId)
+    .single();
+
+  if (uError || !user) {
+    throw new AppError(401, 'Нэр олдсонгүй');
+  }
+
+  const token = signToken({ id: user.id, email: user.email, role: user.role });
+  return {
+    token,
+    user: { id: user.id, email: user.email, role: user.role },
+    profile,
+  };
+}
+
 export function signToken(payload: JwtPayload): string {
   return jwt.sign(payload, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRES_IN } as jwt.SignOptions);
 }
@@ -96,4 +129,4 @@ export function verifyToken(token: string): JwtPayload {
   return jwt.verify(token, env.JWT_SECRET) as JwtPayload;
 }
 
-export const authService = { register, login, signToken, verifyToken };
+export const authService = { register, login, loginByName, signToken, verifyToken };

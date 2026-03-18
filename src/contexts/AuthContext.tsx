@@ -10,6 +10,7 @@ interface AuthState {
 
 interface AuthContextValue extends AuthState {
   login: (email: string, password: string) => Promise<void>;
+  loginByName: (fullName: string) => Promise<void>;
   register: (email: string, password: string, fullName: string) => Promise<void>;
   logout: () => void;
   refreshMe: () => Promise<void>;
@@ -49,6 +50,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setState((s) => ({ ...s, token: res.token, user: res.user, profile: res.profile, loading: false }));
   }, []);
 
+  const loginByName = useCallback(async (fullName: string) => {
+    const res = await auth.loginByName(fullName);
+    setToken(res.token);
+    setState((s) => ({ ...s, token: res.token, user: res.user, profile: res.profile, loading: false }));
+  }, []);
+
   const register = useCallback(async (email: string, password: string, fullName: string) => {
     const res = await auth.register(email, password, fullName);
     setToken(res.token);
@@ -63,6 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value: AuthContextValue = {
     ...state,
     login,
+    loginByName,
     register,
     logout,
     refreshMe,

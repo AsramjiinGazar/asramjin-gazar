@@ -18,5 +18,10 @@ export const loginSchema = z.object({
   password: z.string().min(1),
 });
 
+export const loginByNameSchema = z.object({
+  fullName: z.string().min(2).max(100),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+export type LoginByNameInput = z.infer<typeof loginByNameSchema>;

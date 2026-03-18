@@ -102,6 +102,11 @@ export const auth = {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     }),
+  loginByName: (fullName: string) =>
+    request<LoginResponse>('/api/auth/login-name', {
+      method: 'POST',
+      body: JSON.stringify({ fullName }),
+    }),
   register: (email: string, password: string, fullName: string) =>
     request<LoginResponse>('/api/auth/register', {
       method: 'POST',

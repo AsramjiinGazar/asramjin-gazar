@@ -12,6 +12,11 @@ export async function login(req: Request, res: Response) {
   res.json(result);
 }
 
+export async function loginByName(req: Request, res: Response) {
+  const result = await authService.loginByName(req.body);
+  res.json(result);
+}
+
 export async function me(req: Request, res: Response) {
   const userId = req.user!.id;
   const { data: user } = await supabase.from('users').select('id, email, role').eq('id', userId).single();
@@ -27,4 +32,4 @@ export async function me(req: Request, res: Response) {
   });
 }
 
-export const authController = { register, login, me };
+export const authController = { register, login, loginByName, me };

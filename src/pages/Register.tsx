@@ -4,15 +4,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { students } from "@/data/mockData";
-
-const SEED_PASSWORD = "Password1";
 
 const Register = () => {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { loginByName } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,14 +19,7 @@ const Register = () => {
     if (!trimmed) return;
     setLoading(true);
     try {
-      const index = students.findIndex((s) => s.name.trim() === trimmed);
-      if (index === -1) {
-        setError("Нэр олдсонгүй. Ангийн жагсаалтаар нэрээ оруулна уу.");
-        setLoading(false);
-        return;
-      }
-      const email = `student${index + 1}@class.local`;
-      await login(email, SEED_PASSWORD);
+      await loginByName(trimmed);
       navigate("/", { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Нэвтрэхэд алдаа гарлаа");

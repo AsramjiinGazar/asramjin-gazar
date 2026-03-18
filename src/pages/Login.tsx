@@ -3,15 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { students } from "@/data/mockData";
-
-const SEED_PASSWORD = "Password1";
 
 const Login = () => {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { loginByName } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -21,14 +18,7 @@ const Login = () => {
     if (!trimmed) return;
     setLoading(true);
     try {
-      const index = students.findIndex((s) => s.name.trim() === trimmed);
-      if (index === -1) {
-        setError("Нэр олдсонгүй.");
-        setLoading(false);
-        return;
-      }
-      const email = `student${index + 1}@class.local`;
-      await login(email, SEED_PASSWORD);
+      await loginByName(trimmed);
       navigate("/", { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Алдаа гарлаа.");
