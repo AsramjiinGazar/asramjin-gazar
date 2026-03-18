@@ -151,7 +151,7 @@ const Students = () => {
           <>
             {teachers.length > 0 ? (
               <>
-                <h2 className="text-base font-bold mb-3">Багш нар</h2>
+                <h2 className="text-base font-bold mb-3">Багш</h2>
                 <div className="grid grid-cols-2 gap-3 mb-6">
                   {teachers.map(renderCard)}
                 </div>
