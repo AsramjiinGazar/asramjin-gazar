@@ -99,13 +99,27 @@ const Students = () => {
         const teachers = students.filter((s) => (s as unknown as { role?: string }).role === "teacher");
         const onlyStudents = students.filter((s) => (s as unknown as { role?: string }).role !== "teacher");
         const renderCard = (s: (typeof students)[number]) => {
+          const isTeacher = (s as unknown as { role?: string }).role === "teacher";
           const badges = (s as unknown as { badges?: Array<{ id: string; name: string; icon: string | null }> }).badges ?? [];
           return (
           <button
             key={s.id}
             onClick={() => setSelectedId(s.id)}
-            className="bg-card rounded-xl p-4 shadow-sm text-center active:scale-[0.97] transition-transform"
+            className={[
+              "rounded-xl p-4 shadow-sm text-center active:scale-[0.97] transition-transform",
+              isTeacher
+                ? "bg-card ring-1 ring-[hsl(var(--gold))]/35 shadow-[0_10px_30px_-20px_rgba(255,200,80,0.55)]"
+                : "bg-card",
+            ].join(" ")}
           >
+            {isTeacher ? (
+              <div className="mb-2 flex justify-center">
+                <span className="inline-flex items-center gap-1 rounded-full bg-[hsl(var(--gold))]/15 text-[10px] font-extrabold tracking-wider text-[hsl(var(--gold))] px-2 py-0.5 ring-1 ring-[hsl(var(--gold))]/25">
+                  <span className="text-[12px] leading-none">👩‍🏫</span>
+                  БАГШ
+                </span>
+              </div>
+            ) : null}
             <Avatar name={s.full_name} size="lg" className="mx-auto mb-2" avatarUrl={s.avatar_url} />
             <p className="font-semibold text-sm">{s.full_name}</p>
             <p className="text-[11px] text-muted-foreground truncate mt-0.5">{s.success || "—"}</p>
